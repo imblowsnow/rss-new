@@ -26,7 +26,7 @@
             <el-form-item label="站点图标">
               <el-image
                   style="width: 100px; height: 100px"
-                  :src="currentData.logo"></el-image>
+                  :src="currentData.icon"></el-image>
             </el-form-item>
             <el-form-item label="站点名称">
               <el-input v-model="currentData.title" disabled></el-input>
@@ -47,7 +47,7 @@
 <script>
 import {defineComponent} from "vue";
 import Rss from "@/utils/rss";
-export default defineComponent({
+export default {
   name: 'rss-sub-manage',
   data() {
     return {
@@ -87,7 +87,7 @@ export default defineComponent({
       this.currentData = null;
     }
   },
-});
+};
 </script>
 
 <style lang="stylus">

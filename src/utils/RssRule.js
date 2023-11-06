@@ -1,32 +1,32 @@
-import psl from 'psl';
+import axios from 'axios';
 
 class RssRule {
-
+    static rules = null;
     static async getRules() {
+        if (this.rules !== null) {
+            return this.rules;
+        }
+        return axios.get("./rsshub.json").then((res) => {
+            let mapping = {};
+            res.data.forEach((item) => {
+                let domain = item.domain;
+                mapping[domain] = mapping[domain] || [];
+                mapping[domain].push(item);
+            })
 
+            return this.rules = mapping;
+        })
     }
 
     static async parseRule(url) {
-        let rules = await this.getRules()
-        let parsedDomain;
-        try {
-            parsedDomain = psl.parse(new URL(url).hostname);
-        } catch (error) {
-            return [];
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "http://" + url;
         }
-        if (parsedDomain && parsedDomain.domain) {
-            const subdomain = parsedDomain.subdomain;
-            const domain = parsedDomain.domain;
-            if (rules[domain]) {
-                let rule = rules[domain][subdomain || '.'];
-                if (!rule) {
-                    if (subdomain === 'www') {
-                        rule = rules[domain]['.'];
-                    } else if (!subdomain) {
-                        rule = rules[domain].www;
-                    }
-                }
-            }
-        }
+        let domain = new URL(url).hostname;
+        let rules = await this.getRules();
+        let domainRules = rules[domain];
+        return domainRules;
     }
 }
+
+export default RssRule;

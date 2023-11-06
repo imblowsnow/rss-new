@@ -29,7 +29,7 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 
-export default defineComponent({
+export default {
   name: 'rss-view-table',
   props: {
     data: {
@@ -60,7 +60,7 @@ export default defineComponent({
       console.log(row, column, cell, event);
     },
   },
-});
+};
 </script>
 
 <style lang="stylus">

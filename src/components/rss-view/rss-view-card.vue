@@ -54,7 +54,7 @@
 import {defineComponent} from "vue";
 import RssViewExtend from "./rss-view-extend.vue";
 
-export default defineComponent({
+export default {
   name: 'rss-view-card',
   extends: RssViewExtend,
   data() {
@@ -65,7 +65,7 @@ export default defineComponent({
 
   },
   methods: {},
-});
+};
 </script>
 
 <style lang="stylus">

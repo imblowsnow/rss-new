@@ -1,18 +1,8 @@
-function refreshRules(success) {
-    fetch('https://rsshub.js.org/build/radar-rules.js')
-        .then((response) => {
-            done(response);
-        })
-        .catch(() => {
-            fetch('https://cdn.jsdelivr.net/gh/DIYgod/RSSHub@gh-pages/build/radar-rules.js').then((response) => {
-                done(response);
-            });
-        });
-}
+import RssRule from './RssRule';
 
 class RssSearch {
     static async searchRss(word) {
-
+        return RssRule.parseRule(word);
     }
 
     static async searchBilibli(word) {

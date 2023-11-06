@@ -108,65 +108,65 @@
               placeholder="订阅您最喜爱的@用户或#话题"
           ></el-input>
         </template>
-        <el-button style="width: 100%;margin: 20px 0;" type="primary" @click="subscribe">检索
+        <el-button style="width: 100%;margin: 20px 0;" type="primary" @click="search">检索
         </el-button>
       </div>
     </el-card>
 
-    <el-card style="margin-top: 10px;" :body-style="{'padding': 0}" shadow="never">
-      <div class="header">
-        <div class="title">
-          搜索结果
-        </div>
-      </div>
-      <div>
-        <div class="flex flex-align-items-center" style="grid-gap: 1em; padding: 0 20px;">
-          <div class="flex flex-align-items-center">
-            <img class="icon" src="https://static.zhihu.com/heifetz/favicon.ico"
-                 style="width: 40px;height: 40px;">
-          </div>
-          <div class="flex-1 " style="overflow: hidden;">
-            <el-link class="just-line" style="width: 100%;">
-              知乎每日精选【万字干货】如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的
-            </el-link>
-            <div class="just-line">
-              <small style="font-size: 80%;">
-                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解
-                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解
-                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解
-                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解
-                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解
-              </small>
-            </div>
-          </div>
-          <div class="">
-            <el-button>订阅</el-button>
-          </div>
-        </div>
-        <el-row style="margin: 10px; overflow: auto;flex-wrap: nowrap;">
-          <el-col v-for="i in 5" :span="6" :sm="8" :xs="12">
-            <el-card style="margin: 10px;" :body-style="{'padding': 5}" shadow="never">
-              <div style="display: flex; flex-direction: column; grid-gap: .5em;">
-                <div class="just-line">【万字干货】如何从0开始设计GTA样式的【万字干货】如何从0开始设计GTA样式的
-                </div>
-                <div class="just-line">
-                  <small
-                      style="font-size: 80%;">中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解</small>
-                </div>
-                <div class="flex flex-justify-content-between">
-                  <div>
-                    <el-tag>hhh</el-tag>
-                  </div>
-                  <div>
-                    <small style="font-size: 80%;">3天前</small>
-                  </div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
-      </div>
-    </el-card>
+<!--    <el-card style="margin-top: 10px;" :body-style="{'padding': 0}" shadow="never">-->
+<!--      <div class="header">-->
+<!--        <div class="title">-->
+<!--          搜索结果-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div>-->
+<!--        <div class="flex flex-align-items-center" style="grid-gap: 1em; padding: 0 20px;">-->
+<!--          <div class="flex flex-align-items-center">-->
+<!--            <img class="icon" src="https://static.zhihu.com/heifetz/favicon.ico"-->
+<!--                 style="width: 40px;height: 40px;">-->
+<!--          </div>-->
+<!--          <div class="flex-1 " style="overflow: hidden;">-->
+<!--            <el-link class="just-line" style="width: 100%;">-->
+<!--              知乎每日精选【万字干货】如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的如何从0开始设计GTA样式的-->
+<!--            </el-link>-->
+<!--            <div class="just-line">-->
+<!--              <small style="font-size: 80%;">-->
+<!--                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解-->
+<!--                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解-->
+<!--                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解-->
+<!--                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解-->
+<!--                中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解经验和见解-->
+<!--              </small>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div class="">-->
+<!--            <el-button>订阅</el-button>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <el-row style="margin: 10px; overflow: auto;flex-wrap: nowrap;">-->
+<!--          <el-col v-for="i in 5" :span="6" :sm="8" :xs="12">-->
+<!--            <el-card style="margin: 10px;" :body-style="{'padding': 5}" shadow="never">-->
+<!--              <div style="display: flex; flex-direction: column; grid-gap: .5em;">-->
+<!--                <div class="just-line">【万字干货】如何从0开始设计GTA样式的【万字干货】如何从0开始设计GTA样式的-->
+<!--                </div>-->
+<!--                <div class="just-line">-->
+<!--                  <small-->
+<!--                      style="font-size: 80%;">中文互联网最大的知识平台，帮助人们便捷地分享彼此的知识、经验和见解。经验和见解经验和见解</small>-->
+<!--                </div>-->
+<!--                <div class="flex flex-justify-content-between">-->
+<!--                  <div>-->
+<!--                    <el-tag>hhh</el-tag>-->
+<!--                  </div>-->
+<!--                  <div>-->
+<!--                    <small style="font-size: 80%;">3天前</small>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </el-card>-->
+<!--          </el-col>-->
+<!--        </el-row>-->
+<!--      </div>-->
+<!--    </el-card>-->
 
   </div>
 </template>
@@ -174,7 +174,9 @@
 <script >
 import {defineComponent} from "vue";
 import Rss from "@/utils/Rss";
-export default defineComponent({
+import RssSearch from "@/utils/RssSearch.js";
+import RssParseUtil from "@/utils/RssParseUtil";
+export default {
   name: 'rss-add',
   data() {
     return {
@@ -188,14 +190,41 @@ export default defineComponent({
 
   },
   methods: {
-    async subscribe() {
+    // async search(){
+    //   let rsshubDomain = 'https://rsshub.app';
+    //   RssSearch.searchRss(this.searchWorld).then(async (res) => {
+    //     if (!res) return;
+    //     console.log('search', res);
+    //     let rssSites = [];
+    //     let list = await Promise.all(res.map((item) => {
+    //       let rssUrl = rsshubDomain + item.path;
+    //       console.log('rssUrl', rssUrl);
+    //       return RssParseUtil.parse(rssUrl).then((rss) => {
+    //         rssSites.push(rss);
+    //       })
+    //     }))
+    //     console.log('search', list);
+    //   })
+    // },
+    async search(){
+      if (!this.searchWorld){
+        this.$message.error("请输入搜索内容");
+        return;
+      }
+      let url = this.searchWorld;
+      if (this.activeName === 'bilibli'){
+        url = `https://rsshub.app/bilibili/user/dynamic/` + this.searchWorld;
+      }
+
+      this.subscribe(url);
+    },
+    async subscribe(url) {
       let loader = this.$loading({
         lock: true,
         text: '正在订阅中...',
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
       });
-      let url = this.searchWorld;
       let rss;
       try {
         rss = await Rss.subscribe(url);
@@ -212,7 +241,7 @@ export default defineComponent({
       this.$emit("back");
     },
   },
-});
+};
 </script>
 
 <style lang="stylus">

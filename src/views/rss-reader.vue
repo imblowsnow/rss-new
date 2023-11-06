@@ -1,43 +1,62 @@
 <template>
-  <div class="rss-reader" style="padding: 0 20px;">
-    <div class="title">
-      {{ data.title }}
-    </div>
-    <div class="article-info flex flex-justify-content-between flex-align-items-center" >
-      <div class="author flex" style="grid-gap: 1em;">
-        <img class="icon" :src="getFromLogo(data.fromId)" style="width: 40px;height: 40px;"
-             :title="data.from">
-        <div>
-          <div class="channel-info flex" style="font-size: 14px;">
-            <span style="font-weight: 700;">{{ data.from }}</span>
+  <div v-if="readData.title" class="rss-reader">
+    <div class="rss-view-container">
+      <div class="rss-view-header flex">
+        <div class="flex flex-1 flex-align-items-center">
+          <div class="v-button v-tools" title="返回" @click="closeRead">
+            <el-icon><back /></el-icon>
+          </div>
+<!--          <div class="v-button v-tools" title="刷新" @click="reload">-->
+<!--            <el-icon><RefreshRight /></el-icon>-->
+<!--          </div>-->
+        </div>
+        <div class="flex flex-align-items-center">
+          <div class="v-button v-tools" title="上一个" @click="doPrevRead" :class="{'disabled': prevRead === null}">
+            <el-icon><ArrowLeft /></el-icon>
+          </div>
+          <div class="v-button v-tools" title="下一个" @click="doNextRead" :class="{'disabled': nextRead === null }">
+            <el-icon><ArrowRight /></el-icon>
+          </div>
+        </div>
+      </div>
+      <div class="rss-view-body" >
+        <div class="title">
+          {{ readData.title }}
+        </div>
+        <div class="article-info flex flex-justify-content-between flex-align-items-center" >
+          <div class="author flex" style="grid-gap: 1em;">
+            <img class="icon" :src="getFromLogo(readData.fromId)" style="width: 40px;height: 40px;"
+                 :title="readData.from">
             <div>
-              （ {{ data.link }} ）
+              <div class="channel-info flex" style="font-size: 14px;">
+                <span style="font-weight: 700;">{{ readData.from }}</span>
+              </div>
+              <div>
+                <el-tag v-if="readData.author">{{ readData.author }}</el-tag>
+                <!--            标签-->
+                <el-tag v-for="tag in readData.category">{{ tag }}</el-tag>
+              </div>
             </div>
           </div>
-          <div>
-            <el-tag v-if="data.author">{{ data.author }}</el-tag>
-<!--            标签-->
-            <el-tag v-for="tag in data.category">{{ tag }}</el-tag>
+          <div class="action">
+            <small>{{ formatDate(readData.published) }}</small
+            >
+            <div class="v-button" title="收藏">
+              <el-icon><Star /></el-icon>
+            </div>
+            <div class="v-button" title="内嵌网页" @click="toggleIframe">
+              <el-icon><ScaleToOriginal /></el-icon>
+            </div>
+            <div class="v-button" title="打开源文" @click="openToBrowser(readData.link)">
+              <el-icon><ChromeFilled /></el-icon>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="action">
-        <small>{{ formatDate(data.published) }}</small
-        >
-        <div class="v-button" title="收藏">
-          <el-icon><Star /></el-icon>
-        </div>
-        <div class="v-button" title="内嵌网页" @click="toggleIframe">
-          <el-icon><ScaleToOriginal /></el-icon>
-        </div>
-        <div class="v-button" title="打开源文" @click="openToBrowser">
-          <el-icon><ChromeFilled /></el-icon>
+        <div v-if="isIframe === false" class="content flex-1" v-html="readData.content || this.readData.description"></div>
+        <div class="flex-1" v-else>
+          <iframe :src="readData.link" style="width: 100%;min-height: calc(100vh - 185px);border: none;"></iframe>
         </div>
       </div>
-    </div>
-    <div v-if="isIframe === false" class="content flex-1" v-html="data.content"></div>
-    <div class="flex-1" v-else>
-      <iframe :src="data.link" style="width: 100%;height: 100%;border: none;"></iframe>
     </div>
   </div>
 </template>
@@ -47,35 +66,71 @@ import {defineComponent} from "vue";
 import DateUtil from "@/utils/DateUtil";
 import Rss from "@/utils/Rss";
 
-export default defineComponent({
+export default {
   name: 'rss-reader',
-  props: {
-    data: {
-      type: Object,
-      default: () => {}
-    }
-  },
   data() {
     return {
+      tableData: [],
+      readData: {},
       isIframe: false
     };
   },
-  computed: {},
+  computed: {
+    prevRead(){
+      if (this.readData == null) return false;
+      if (this.tableData.length === 0) return null;
+      for (let i = 0; i < this.tableData.length; i++) {
+        if (this.tableData[i].link === this.readData.link) {
+          if (i === 0) return null;
+          return this.tableData[i - 1];
+        }
+      }
+      return null;
+    },
+    nextRead() {
+      if (this.readData == null) return null;
+      if (this.tableData.length === 0) return null;
+      for (let i = 0; i < this.tableData.length; i++) {
+        if (this.tableData[i].link === this.readData.link) {
+          if (i === this.tableData.length - 1) return null;
+          return this.tableData[i + 1];
+        }
+      }
+      return null;
+    },
+  },
   mounted() {
-    if (!this.data.content){
-      this.toggleIframe()
+    let rssReadData = localStorage.getItem('rss-read');
+    if (!rssReadData) {
+      this.$router.push({path: '/'})
+      return;
     }
+    this.readData = JSON.parse(rssReadData)
+
+    this.tableData = localStorage.getItem('rss-read-list') ? JSON.parse(localStorage.getItem('rss-read-list')) : []
+
+    this.$nextTick(() => {
+      // 监听a标签点击事件
+      document.querySelector('.rss-view-body').addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') {
+          e.preventDefault();
+          let href = e.target.getAttribute('href');
+          this.openToBrowser(href)
+        }
+      })
+    })
+    console.log('readData', this.readData);
   },
   methods: {
     toggleIframe(){
       this.isIframe = !this.isIframe
     },
-    openToBrowser(){
+    openToBrowser(url){
       // 浏览器打开
       if (window['utools']){
-        utools.shellOpenExternal(this.data.link)
+        utools.shellOpenExternal(url)
       }else{
-        window.open(this.data.link)
+        window.open(url)
       }
     },
 
@@ -88,11 +143,23 @@ export default defineComponent({
     },
     getFromLogo(fromId){
       let subscribe = Rss.getSubscribe(fromId)
-      if (subscribe) return subscribe.icon;
-      return './logo.png'
+      console.log('get subscribe', subscribe);
+      return subscribe && subscribe.icon ? subscribe.icon : './logo.png'
+    },
+
+
+    closeRead() {
+      this.$router.back();
+    },
+    doPrevRead() {
+      this.readData = this.prevRead;
+    },
+    doNextRead(){
+      console.log('doNextRead', this.nextRead);
+      this.readData = this.nextRead;
     }
   },
-});
+};
 </script>
 
 <style lang="stylus">
@@ -108,6 +175,26 @@ export default defineComponent({
   }
   .content{
     overflow: auto;
+  }
+
+  .rss-view-container{
+    background var(--el-bg-color);
+    .rss-view-header{
+      padding: 0 10px;
+      height: 40px;
+      .v-tools{
+        margin-right: 10px;
+        cursor pointer
+      }
+    }
+    .rss-view-body{
+      padding 0 20px;
+      height: calc(100vh - 100px);
+      overflow: auto;
+      .content img{
+        max-width: 100%;
+      }
+    }
   }
 }
 </style>

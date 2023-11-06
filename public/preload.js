@@ -1,7 +1,7 @@
 const request = require('node-fetch')
 const iconv = require('iconv-lite')
 const {Buffer} = require("buffer");
-const httpsProxyAgent = require('https-proxy-agent');
+// const httpsProxyAgent = require('https-proxy-agent');
 
 window.utils = {
     request: async (url, params) => {
@@ -9,7 +9,7 @@ window.utils = {
     },
     requestRssAndDecode: async (url, proxy=null) => {
         let response = await window.utils.request(url, {
-            agent: new httpsProxyAgent(proxy),
+            // agent: new httpsProxyAgent(proxy),
         });
         // 拿到原始数据流
         let chunk = await response.buffer();

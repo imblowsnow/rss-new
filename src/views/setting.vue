@@ -45,12 +45,14 @@
       <div class="header">
         <el-form ref="form" :model="form" label-width="100px" label-position="top">
           <template v-if="activeName === 'basic'">
-            <el-form-item label="监听周期(分)">
+            <el-form-item label="监听周期(秒)">
               <el-input-number v-model="form.timer" :min="1"></el-input-number>
+            </el-form-item>
+            <el-form-item label="最大文章容量">
+              <el-input-number v-model="form.maxArticleNum" :min="1"></el-input-number>
             </el-form-item>
             <el-form-item label="订阅通知">
               <el-checkbox v-model="form.notify" label="开启订阅通知"/>
-
             </el-form-item>
           </template>
           <template v-else-if="activeName === 'rss'">
@@ -74,14 +76,16 @@
 <script>
 import {defineComponent} from "vue";
 import db from "@/utils/db";
+import Rss from "@/utils/Rss";
 
-export default defineComponent({
+export default {
   name: 'setting',
   data() {
     return {
       activeName: 'basic',
       form: {
         timer: 5,
+        maxArticleNum: 5000,
         notify: false,
         rsshub: 'https://rsshub.app',
         proxy: null
@@ -103,13 +107,15 @@ export default defineComponent({
     saveConfig() {
       db.setItem(db.KEY_CONFIG, JSON.stringify(this.form));
 
+      Rss.cronInterval();
+
       this.$message({
         message: '保存成功',
         type: 'success'
       });
     },
   },
-});
+};
 </script>
 
 <style lang="stylus">

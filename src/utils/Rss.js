@@ -1,4 +1,4 @@
-import RssUtil from "@/utils/RssUtil";
+import RssParseUtil from "@/utils/RssParseUtil";
 import db from "@/utils/db";
 import bus from "@/utils/bus";
 function generateUniqueId() {
@@ -9,6 +9,8 @@ function generateUniqueId() {
 
 
 class Rss{
+    timerInterval = null;
+
     static async getConfig(name,defaultValue=null){
         let configStr = db.getItem(db.KEY_CONFIG);
         let value = defaultValue;
@@ -19,9 +21,17 @@ class Rss{
         return value;
     }
     static async cronInterval(){
-        let timer = await this.getConfig('timer', 5);
+        let timer = await this.getConfig('timer', 5 * 60);
+        // let isInit = db.getItem(db.KEY_INIT);
+        // if (this.getSubscribes().length === 0 && !isInit){
+        //     db.setItem(db.KEY_INIT,1);
+        //     // 加入一个默认的订阅源
+        //     let url = 'https://rsshub.app/zyw/hot'
+        //     this.subscribe(url,'知乎热榜');
+        // }
+        if (this.timerInterval) clearInterval(this.timerInterval);
         // 订阅检查
-        setInterval(() => {
+        this.timerInterval = setInterval(() => {
             let articles = Rss.cron();
             if (articles.length > 0) {
                 this.$notify({
@@ -30,7 +40,7 @@ class Rss{
                     type: 'success',
                 });
             }
-        }, timer * 60 * 1000);
+        }, timer * 1000);
     }
     static async cron(fromId=null){
         console.log('start cron');
@@ -89,7 +99,7 @@ class Rss{
 
     static async #parseRssArticles(url){
         try {
-            let rss = await RssUtil.parse(url);
+            let rss = await RssParseUtil.parse(url);
             console.log('cron parseRssArticles',url,rss);
             return rss.items;
         }catch (err){
@@ -119,37 +129,42 @@ class Rss{
             articleIndexsMap[articleIndex.url] = articleIndex;
         }
 
-        // 根据时间 published 倒序排序
+        // 根据时间 published 最新时间在前面
         articles = articles.sort((a,b)=>{
-            return b.published - a.published;
+            return new Date(b.pubDate) - new Date(a.pubDate);
         });
 
         // 检查最大存储数量 5000，超过自动删除最后的数据
-        // if (articleIndexs.length + articles.length > 5000){
-        //     let deleteCount = articleIndexs.length + articles.length - 5000;
-        //     articleIndexs.splice(5000,deleteCount);
-        // }
+        let maxArticleNum = await this.getConfig('maxArticleNum',5000);
+        if (articleIndexs.length + articles.length > maxArticleNum){
+            let deleteCount = articleIndexs.length + articles.length - maxArticleNum;
+            articleIndexs.splice(maxArticleNum,deleteCount);
+        }
 
+        let newArticles = [];
         for (const article of articles) {
             if (articleIndexsMap[article.link]) continue;
 
-            // 向上插入
-            articleIndexs.unshift({
+            newArticles.push({
                 url: article.link,
                 title: article.title,
                 from: article.from,
                 fromId: article.fromId,
-            })
+            });
 
             db.setItem(db.KEY_ARTICLE_PREFIX + article.link,JSON.stringify(article));
         }
+
+        // 向前插入数据
+        articleIndexs.unshift(...newArticles)
 
         db.setItem(db.KEY_ARTICLE_INDEXES,JSON.stringify(articleIndexs));
     }
 
     static async  getArticles({page,limit, searchWord, from}){
         let articleIndexs = this.getArticleIndexs()
-        articleIndexs = articleIndexs.reverse()
+
+        console.log('articleIndexs', articleIndexs);
 
         let start = (page - 1) * limit;
         let end = page * limit;
@@ -190,6 +205,10 @@ class Rss{
         };
     }
 
+    static deleteArticles() {
+        db.removeItem(db.KEY_ARTICLE_INDEXES);
+    }
+
     /**
      * 收藏文章
      * @param url
@@ -224,14 +243,14 @@ class Rss{
         return JSON.parse(str);
     }
 
-    static async subscribe(url){
-        let res =  await RssUtil.parse(url);
-        console.log('subscribe',url,res);
+    static async subscribe(url, name=''){
+        console.log('subscribe',url);
+        let res =  await RssParseUtil.parse(url);
         let site = {
             // 随机生成一个id
             id: generateUniqueId(),
             url: url,
-            name: res.title,
+            name: name ? name : res.title,
             title: res.title,
             icon: res.image,
             count: 0
@@ -270,6 +289,8 @@ class Rss{
         }
         return null;
     }
+
+
 }
 
 

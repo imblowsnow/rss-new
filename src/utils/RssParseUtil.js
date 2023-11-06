@@ -1,9 +1,11 @@
 import { parseByContent } from '@/lib/rss-parse';
 
-class RssUtil{
+class RssParseUtil {
     static async parse(url, proxy=null){
         let content = await window.utils.requestRssAndDecode(url,proxy);
-        return await parseByContent(content);
+        return await parseByContent(content).catch((error)=>{
+            throw new Error('订阅地址有误');
+        });
     }
     static async checkUrl(url){
         try {
@@ -16,4 +18,4 @@ class RssUtil{
 }
 
 
-export default RssUtil;
+export default RssParseUtil;

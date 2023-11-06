@@ -10,7 +10,7 @@ export default {
         let currentTime = new Date().getTime() / 1000 // 现行时间戳
         let distance = currentTime - oldTime;
         if( distance < hour ) { // 一小时内
-            return parseInt( distance ) +"分钟前"
+            return parseInt( distance / 60 ) +"分钟前"
         } else if( distance < day ) {// 一天内
             return  parseInt( distance / hour ) +"小时前"
         } else if( distance < month ) { // n天前来过

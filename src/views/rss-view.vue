@@ -1,6 +1,6 @@
 <template>
   <div class="rss-view">
-    <div v-show="readData == null" class="rss-view-container">
+    <div class="rss-view-container">
       <div class="rss-view-header flex">
         <div class="flex flex-1 flex-align-items-center">
 <!--          <div class="v-checkbox-dropdown v-tools">-->
@@ -20,9 +20,9 @@
           <div class="v-button v-tools" title="刷新" @click="reload">
             <el-icon><RefreshRight /></el-icon>
           </div>
-<!--          <div class="v-button v-tools" title="标记已读">-->
-<!--            <el-icon><Check /></el-icon>-->
-<!--          </div>-->
+          <div class="v-button v-tools" title="全部删除" @click="deleteArticles">
+            <el-icon><Delete  /></el-icon>
+          </div>
         </div>
         <div class="flex flex-align-items-center">
           <div class="v-tools">
@@ -56,29 +56,7 @@
       </div>
     </div>
 
-<!--    <div v-if="readData" class="rss-view-container">-->
-<!--      <div class="rss-view-header flex">-->
-<!--        <div class="flex flex-1 flex-align-items-center">-->
-<!--          <div class="v-button v-tools" title="返回" @click="closeRead">-->
-<!--            <el-icon><back /></el-icon>-->
-<!--          </div>-->
-<!--          <div class="v-button v-tools" title="刷新" @click="reload">-->
-<!--            <el-icon><RefreshRight /></el-icon>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        <div class="flex flex-align-items-center">-->
-<!--          <div class="v-button v-tools" title="上一个" @click="doPrevRead" :class="{'disabled': prevRead === null}">-->
-<!--            <el-icon><ArrowLeft /></el-icon>-->
-<!--          </div>-->
-<!--          <div class="v-button v-tools" title="下一个" @click="doNextRead" :class="{'disabled': nextRead === null }">-->
-<!--            <el-icon><ArrowRight /></el-icon>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--      <div class="rss-view-body" >-->
-<!--        <rss-reader :data="readData" @close="closeRead"></rss-reader>-->
-<!--      </div>-->
-<!--    </div>-->
+
   </div>
 </template>
 
@@ -93,7 +71,7 @@ import {Back} from "@element-plus/icons-vue";
 import bus from "@/utils/bus";
 import Rss from "@/utils/Rss";
 import db from "@/utils/db";
-export default defineComponent({
+export default {
   name: 'rss-view',
   components: {Back, RssViewList, RssViewGrid, RssViewCard},
   props:{
@@ -139,39 +117,18 @@ export default defineComponent({
       current: 1,
       total: 65,
       page: {
-        limit: 10,
+        limit: 15,
       },
       searchFrom: null,
 
       readData: null
     };
   },
-  computed: {
-    prevRead(){
-      if (this.readData == null) return false;
-      for (let i = 0; i < this.tableData.length; i++) {
-        if (this.tableData[i].link === this.readData.link) {
-          if (i === 0) return null;
-          return this.tableData[i - 1];
-        }
-      }
-      return null;
-    },
-    nextRead() {
-      if (this.readData == null) return null;
-      for (let i = 0; i < this.tableData.length; i++) {
-        if (this.tableData[i].link === this.readData.link) {
-          if (i === this.tableData.length - 1) return null;
-          return this.tableData[i + 1];
-        }
-      }
-      return null;
-    },
-  },
+
   mounted() {
     console.log(RssViewTable.name);
-    if (db.getItem('rss-view') != null) {
-      this.view = db.getItem('rss-view')
+    if (db.getItem(db.KEY_VIEW) != null) {
+      this.view = db.getItem(db.KEY_VIEW)
     }
 
     this.loadData()
@@ -256,20 +213,18 @@ export default defineComponent({
 
     read(data) {
       console.log('read start', data);
-      this.readData = data;
+      localStorage.setItem('rss-read', JSON.stringify(data));
+      localStorage.setItem('rss-read-list', JSON.stringify(this.tableData));
+      // 跳转到详情页
+      this.$router.push({name: 'rss-reader'})
     },
-    closeRead() {
-      this.readData = null;
-    },
-    doPrevRead() {
-      this.readData = this.prevRead;
-    },
-    doNextRead(){
-      console.log('doNextRead', this.nextRead);
-      this.readData = this.nextRead;
+
+    deleteArticles(){
+      Rss.deleteArticles()
+      this.reload()
     }
   },
-});
+};
 </script>
 
 <style lang="stylus">
@@ -287,7 +242,10 @@ export default defineComponent({
     .rss-view-body{
       height: calc(100vh - 100px);
       overflow: auto;
+
+
     }
   }
 }
+
 </style>

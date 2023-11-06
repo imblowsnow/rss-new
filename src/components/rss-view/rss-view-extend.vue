@@ -3,7 +3,7 @@ import {defineComponent} from "vue";
 import DateUtil from "@/utils/DateUtil";
 import Rss from "@/utils/Rss";
 
-export default defineComponent({
+export default {
   props: {
     data: {
       type: Array,
@@ -48,9 +48,8 @@ export default defineComponent({
     },
     getFromLogo(fromId){
       let subscribe = Rss.getSubscribe(fromId)
-      if (subscribe) return subscribe.icon;
-      return './logo.png'
+      return subscribe && subscribe.icon ? subscribe.icon : './logo.png'
     }
   },
-});
+};
 </script>

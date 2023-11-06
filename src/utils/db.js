@@ -4,6 +4,9 @@ class Db {
     KEY_ARTICLE_PREFIX = 'article_';
     KEY_ARTICLE_INDEXES = 'article_index_';
     KEY_SUBSCRIBES = 'subscribes';
+    KEY_INIT = 'init';
+
+    KEY_VIEW = 'view';
 
     constructor() {
         this.db = window['utools'] ? new UtoolsStorage(): localStorage;
