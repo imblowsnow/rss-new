@@ -1,0 +1,23 @@
+{
+  "pluginName": "RSS订阅",
+  "description": "RSS订阅",
+  "author": "blowsnow",
+  "homepage": "https://github.com/utools-blowsnow/file_share",
+  "development": {
+    "main": "http://127.0.0.1:5173",
+    "preload": "preload.js"
+  },
+  "main": "index.html",
+  "preload": "preload.js",
+  "logo": "logo.png",
+  "version": "1.0.1",
+  "features": [
+    {
+      "code": "open",
+      "explain": "RSS订阅",
+      "cmds":[
+        "RSS订阅"
+      ]
+    }
+  ]
+}

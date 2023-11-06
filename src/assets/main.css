@@ -1,0 +1,23 @@
+@import './base.css';
+
+#app {
+  margin: 0 auto;
+
+  font-weight: normal;
+}
+
+.flex{
+  display: flex;
+}
+.flex-1{
+  flex: 1;
+}
+.flex-align-items-center{
+  align-items: center;
+}
+.flex-justify-content-center{
+  justify-content: center;
+}
+.flex-justify-content-between{
+  justify-content: space-between;
+}
