@@ -118,7 +118,7 @@ export default defineComponent({
     padding: 20px 20px 0 20px;
 
     .el-tabs__header {
-      margin 0;
+      margin: 0;
     }
 
     .title {
@@ -141,7 +141,6 @@ export default defineComponent({
       font-size: .875rem;
       font-weight: 400;
       letter-spacing: .0178571429em;
-      opacity: var(--v-medium-emphasis-opacity);
       overflow: hidden;
       padding: 0.5rem 0rem;
       text-overflow: ellipsis;
