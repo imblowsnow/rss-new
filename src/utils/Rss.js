@@ -235,7 +235,7 @@ class Rss{
         }
         console.log('collectArticle',article,flag);
         if (flag){
-            collects.push({
+            collects.unshift({
                 url: article.link,
                 title: article.title,
                 from: article.from,

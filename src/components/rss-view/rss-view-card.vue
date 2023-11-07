@@ -19,7 +19,9 @@
             <div class="info">
               <div class="info-left">
                 <site-icon :from-id="item.fromId" class="icon"></site-icon>
-                <el-link :underline="false" class="from">{{ item.from }}</el-link>
+                <el-link :underline="false" class="from">
+                  {{ item.from }}
+                </el-link>
               </div>
               <div class="info-right" :title="formatDate(item.published)">
                 {{ timeDistance(item.published) }}
@@ -50,8 +52,7 @@
   </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script>
 import RssViewExtend from "./rss-view-extend.vue";
 import SiteIcon from "@/components/site-icon.vue";
 
@@ -109,6 +110,17 @@ export default {
       .info-left{
         display: flex;
         align-items: center;
+        flex 1
+        overflow hidden
+        .el-link{
+          overflow hidden
+        }
+        .el-link__inner{
+          display inline-block
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
       }
     }
   }

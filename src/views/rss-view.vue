@@ -115,7 +115,7 @@ export default {
   },
 
   mounted() {
-    console.log(RssViewTable.name);
+    console.log('get KEY_VIEW', db.getItem(db.KEY_VIEW));
     if (db.getItem(db.KEY_VIEW) != null) {
       this.view = db.getItem(db.KEY_VIEW)
     }
@@ -146,7 +146,7 @@ export default {
         }
       }
 
-      db.setItem('rss-view', this.view)
+      db.setItem(db.KEY_VIEW, this.view)
     },
 
     async loadData() {

@@ -137,7 +137,7 @@ export default {
         }
       }
 
-      db.setItem('rss-view', this.view)
+      db.setItem(db.KEY_VIEW, this.view)
     },
 
     async loadData() {
