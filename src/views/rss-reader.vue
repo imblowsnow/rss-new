@@ -40,8 +40,9 @@
           <div class="action">
             <small>{{ formatDate(readData.published) }}</small
             >
-            <div class="v-button" title="收藏">
-              <el-icon><Star /></el-icon>
+            <div class="v-button" title="收藏" @click="collectArticle">
+              <el-icon v-if="isCollect"><StarFilled /></el-icon>
+              <el-icon v-else><Star /></el-icon>
             </div>
             <div class="v-button" title="内嵌网页" @click="toggleIframe">
               <el-icon><ScaleToOriginal /></el-icon>
@@ -73,7 +74,8 @@ export default {
     return {
       tableData: [],
       readData: {},
-      isIframe: false
+      isIframe: false,
+      isCollect: false
     };
   },
   computed: {
@@ -98,7 +100,7 @@ export default {
         }
       }
       return null;
-    },
+    }
   },
   mounted() {
     let rssReadData = localStorage.getItem('rss-read');
@@ -107,6 +109,9 @@ export default {
       return;
     }
     this.readData = JSON.parse(rssReadData)
+
+    this.isCollect = Rss.isCollectArticle(this.readData.link);
+
 
     this.tableData = localStorage.getItem('rss-read-list') ? JSON.parse(localStorage.getItem('rss-read-list')) : []
 
@@ -154,10 +159,24 @@ export default {
     },
     doPrevRead() {
       this.readData = this.prevRead;
+      this.isCollect = Rss.isCollectArticle(this.readData.link);
     },
     doNextRead(){
       console.log('doNextRead', this.nextRead);
       this.readData = this.nextRead;
+      this.isCollect = Rss.isCollectArticle(this.readData.link);
+    },
+
+
+    async collectArticle(){
+      await Rss.collectArticle(this.readData, !this.isCollect)
+
+      this.isCollect = !this.isCollect;
+
+      this.$message({
+        message: this.isCollect ? '收藏成功' : '取消收藏成功',
+        type: 'success'
+      });
     }
   },
 };

@@ -1,6 +1,8 @@
 // bus.js
 class Bus {
     EVENT_NEW_ARTICLE = "new-article";
+    EVENT_SEARCH = "search";
+    EVENT_CHANGE_SEARCH = "change-search";
 
     constructor() {
         this.list = {};  // 收集订阅

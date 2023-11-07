@@ -20,7 +20,7 @@
       </div>
       <div class="v-page-header-center flex flex-align-items-center">
         <div class="search-warp flex flex-align-items-center">
-          <el-input placeholder="搜索标题" v-model="searchWord">
+          <el-input placeholder="搜索标题" v-model="searchWord" @input="doSearch">
             <template v-slot:prefix="scopre">
               <el-button style="font-size: 20px;" :icon="Search" text circle />
             </template>
@@ -59,15 +59,15 @@
               <span>首页</span>
             </template>
           </el-menu-item>
-          <!--          <el-menu-item index="collect" route="/rss-collect">-->
-          <!--            <el-icon><Star /></el-icon>-->
-          <!--            <template #title>收藏</template>-->
-          <!--          </el-menu-item>-->
-          <el-menu-item index="find" route="/rss-sub-manage">
+          <el-menu-item index="rss-collect" route="/rss-collect">
+            <el-icon><Star /></el-icon>
+            <template #title>收藏</template>
+          </el-menu-item>
+          <el-menu-item index="rss-sub-manage" route="/rss-sub-manage">
             <el-icon><Compass /></el-icon>
             <template #title>我的订阅</template>
           </el-menu-item>
-          <el-menu-item index="config" route="/setting">
+          <el-menu-item index="setting" route="/setting">
             <el-icon><Setting /></el-icon>
             <template #title>配置</template>
           </el-menu-item>
@@ -109,6 +109,20 @@ export default {
       searchWord: null
     }
   },
+  watch:{
+    $route: {
+      handler: function(val, oldVal){
+        console.log('$route',val);
+        this.activeMenu = val.name;
+
+        this.$nextTick(() => {
+          bus.$emit(bus.EVENT_SEARCH, this.searchWord)
+        })
+      },
+      // 深度观察监听
+      deep: true
+    }
+  },
   mounted() {
     // 检查浏览器宽度是否为手机
     if (window.innerWidth < 810) {
@@ -121,12 +135,21 @@ export default {
 
       let isNotify = Rss.getConfig('notify', false)
       if (isNotify && articles.length > 0) {
-        this.$notify({
-          title: '新文章',
-          message: '已更新' + articles.length + '篇文章',
-          type: 'success',
-        });
+        if (window['utools']){
+          utools.showNotification('已更新' + articles.length + '篇文章')
+        }else{
+          this.$notify({
+            title: '新文章',
+            message: '已更新' + articles.length + '篇文章',
+            type: 'success',
+          });
+        }
+
       }
+    })
+    bus.$on(bus.EVENT_CHANGE_SEARCH, (searchWord) => {
+      console.log('bus on app', bus.EVENT_CHANGE_SEARCH, searchWord);
+      this.searchWord = searchWord
     })
   },
   methods:{
@@ -163,6 +186,10 @@ export default {
       console.log('goAddView');
       this.activeMenu = null
       this.$router.push('/rss-add')
+    },
+
+    doSearch(){
+      bus.$emit(bus.EVENT_SEARCH, this.searchWord);
     }
   }
 };

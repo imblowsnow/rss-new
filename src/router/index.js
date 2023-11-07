@@ -11,6 +11,11 @@ const routes = [
                 component: () => import('../views/rss-view.vue'),
             },
             {
+                path:'/rss-collect',
+                name: "rss-collect",
+                component: () => import('../views/rss-collect-view.vue'),
+            },
+            {
                 path:'/rss-add',
                 name: "rss-add",
                 component: () => import('../views/rss-add.vue'),

@@ -44,7 +44,7 @@ class Rss{
                 console.log('emit new article', articles);
                 bus.$emit(bus.EVENT_NEW_ARTICLE, articles);
             }
-        }, timer * 1000);
+        }, timer * 60 * 1000);
     }
     static async cron(fromId=null){
         console.log('start cron');
@@ -91,7 +91,7 @@ class Rss{
 
         if (allArticles.length > 0){
 
-            await this.addArticles(allArticles);
+            this.addArticles(allArticles);
 
         }
 
@@ -127,7 +127,7 @@ class Rss{
         return articleIndexs;
     }
 
-    static async addArticles(articles){
+    static addArticles(articles){
         // 把文章存到数据库
         let articleIndexs = this.getArticleIndexs();
         // let articleIndexsMap = {};
@@ -168,7 +168,7 @@ class Rss{
         db.setItem(db.KEY_ARTICLE_INDEXES,JSON.stringify(articleIndexs));
     }
 
-    static async  getArticles({page,limit, searchWord, from}){
+    static getArticles({page,limit, searchWord, from}){
         let articleIndexs = this.getArticleIndexs()
 
         console.log('articleIndexs', articleIndexs);
@@ -216,29 +216,116 @@ class Rss{
         db.removeItem(db.KEY_ARTICLE_INDEXES);
     }
 
+
+
+
+    /**   收藏文章相关   **/
     /**
      * 收藏文章
-     * @param url
+     * @param article
      * @param flag
      * @returns {Promise<void>}
      */
-    static async  collectArticle(url,flag=true){
+    static  collectArticle(article,flag=true){
         let collects = db.getItem(db.KEY_COLLECT);
         if (collects){
             collects = JSON.parse(collects);
         }else{
             collects = [];
         }
+        console.log('collectArticle',article,flag);
         if (flag){
-            collects.push(url);
+            collects.push({
+                url: article.link,
+                title: article.title,
+                from: article.from,
+                fromId: article.fromId,
+            });
         }else{
-            let index = collects.indexOf(url);
-            if (index > -1){
-                collects.splice(index,1);
+            for (let i = 0; i < collects.length; i++) {
+                if (collects[i].url === article.link){
+                    collects.splice(i,1);
+                    break;
+                }
             }
         }
         db.setItem(db.KEY_COLLECT,JSON.stringify(collects));
     }
+
+    static getCollectArticleIndexs(){
+        let collects = db.getItem(db.KEY_COLLECT);
+        if (collects){
+            collects = JSON.parse(collects);
+        }else{
+            collects = [];
+        }
+        return collects;
+    }
+
+    static getCollectArticles({page,limit, searchWord, from}){
+        let articleIndexs = this.getCollectArticleIndexs()
+
+        console.log('collectArticlesIndexs', articleIndexs);
+
+        let start = (page - 1) * limit;
+        let end = page * limit;
+
+        let newArticleIndexs = [];
+        // 根据 searchWord 过滤文章
+        for (const articleIndexInfo of articleIndexs) {
+            if (searchWord && articleIndexInfo.title.indexOf(searchWord) === -1){
+                continue;
+            }
+            if (from && articleIndexInfo.from.indexOf(from) === -1){
+                continue;
+            }
+            newArticleIndexs.push(articleIndexInfo);
+            // if (newArticleIndexs.length >= end){
+            //     break;
+            // }
+        }
+
+        // 根据 start 和 limit 获取文章
+        let articles = [];
+
+        if (end > newArticleIndexs.length){
+            end = newArticleIndexs.length;
+        }
+
+        for (let i = start; i < end; i++) {
+            let articleIndexInfo = newArticleIndexs[i];
+            let articleId = articleIndexInfo.url;
+
+            let article = db.getItem(db.KEY_ARTICLE_PREFIX + articleId);
+            if (!article) continue;
+            articles.push(JSON.parse(article));
+        }
+
+        return {
+            total: newArticleIndexs.length,
+            articles,
+        };
+    }
+
+    static isCollectArticle(url){
+        let collects = db.getItem(db.KEY_COLLECT);
+        if (collects){
+            collects = JSON.parse(collects);
+        }else{
+            collects = [];
+        }
+        for (const collect of collects) {
+            if (collect.url === url){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static deleteCollectArticles() {
+        db.removeItem(db.KEY_COLLECT);
+    }
+
 
 
     /**   订阅源相关   **/

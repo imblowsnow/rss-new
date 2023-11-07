@@ -45,7 +45,7 @@
       <div class="header">
         <el-form ref="form" :model="form" label-width="100px" label-position="top">
           <template v-if="activeName === 'basic'">
-            <el-form-item label="监听周期(秒)">
+            <el-form-item label="监听周期(分)">
               <el-input-number v-model="form.timer" :min="1"></el-input-number>
             </el-form-item>
             <el-form-item label="最大文章容量">

@@ -1,5 +1,5 @@
 <template>
-  <div class="rss-view">
+  <div class="rss-collect-view">
     <div class="rss-view-container">
       <div class="rss-view-header flex">
         <div class="flex flex-1 flex-align-items-center">
@@ -81,10 +81,11 @@ export default {
   },
   data() {
     return {
-      searchWord: null,
       selected: [],
       tableData: [],
       loadTableData: false,
+
+      searchWord: null,
 
       // 默认视图
       view: RssViewList.name,
@@ -120,22 +121,12 @@ export default {
       this.view = db.getItem(db.KEY_VIEW)
     }
 
-    this.loadData()
-
-    bus.$on(bus.EVENT_NEW_ARTICLE, (articles) => {
-      console.log('bus on', bus.EVENT_NEW_ARTICLE, articles);
-      let autoRefresh = Rss.getConfig('autoRefresh', false)
-      console.log('autoRefresh', autoRefresh);
-      if (autoRefresh && this.current === 1 && articles.length > 0) {
-        // 通知更新数据
-        this.loadData()
-      }
-    })
-
     bus.$on(bus.EVENT_SEARCH, (searchWord) => {
       console.log('bus on collect', bus.EVENT_SEARCH, searchWord);
       this.searchWord = searchWord
     })
+
+    this.loadData()
   },
   methods: {
     toggleView() {
@@ -156,11 +147,13 @@ export default {
         searchWord: this.searchWord,
         from: this.searchFrom
       }
-      console.log('loadData', params);
+      console.log('collect loadData', params);
       this.loadTableData = true;
       this.tableData = []
 
-      let data = Rss.getArticles(params)
+      let data = Rss.getCollectArticles(params)
+
+      console.log('collect loadData', data);
 
       this.total = data.total;
       this.tableData = data.articles;
@@ -219,11 +212,11 @@ export default {
 
     async deleteArticles() {
       try {
-        await this.$confirm("确定删除所有文章吗？");
+        await this.$confirm("确定删除所有收藏的文章吗？");
       } catch (err) {
         return;
       }
-      Rss.deleteArticles()
+      Rss.deleteCollectArticles()
       this.reload()
     }
   },
@@ -231,7 +224,7 @@ export default {
 </script>
 
 <style lang="stylus">
-.rss-view {
+.rss-collect-view {
   .rss-view-container{
     background var(--el-bg-color);
     .rss-view-header{

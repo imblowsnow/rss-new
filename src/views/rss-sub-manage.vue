@@ -62,6 +62,10 @@ export default {
   computed: {},
   mounted() {
     this.data = Rss.getSubscribes();
+    // 自动选中第一个
+    if (this.data.length > 0) {
+      this.currentData = this.data[0];
+    }
   },
   methods: {
     onRowClick(row, column, event) {
