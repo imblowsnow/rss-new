@@ -198,9 +198,17 @@ export default {
 <script setup>
 import { useDark, useToggle } from '@vueuse/core'
 import {Search, Plus, Setting} from '@element-plus/icons-vue'
-// import RssView from "@/components/rss-view/rss-view.vue";
-// import RssAdd from "@/components/rss-add.vue";
-// import RssSubManage from "@/components/rss-sub-manage.vue";
+
+// // 判断是否为暗黑模式
+const isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+const currentMode = useDark()
+// console.log('isDark', currentMode.value);
+// if (isDarkMode !== currentMode.value) {
+//   const toggleDark = useToggle(currentMode)
+//   toggleDark()
+// }
 
 </script>
 
