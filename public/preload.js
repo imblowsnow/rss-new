@@ -1,16 +1,19 @@
 const request = require('node-fetch')
 const iconv = require('iconv-lite')
 const {Buffer} = require("buffer");
-// const httpsProxyAgent = require('https-proxy-agent');
+const {HttpsProxyAgent} = require('https-proxy-agent');
 
 window.utils = {
     request: async (url, params) => {
         return request(url, params);
     },
     requestRssAndDecode: async (url, proxy=null) => {
+        let agent = proxy ? new HttpsProxyAgent(proxy) : null
+        console.log('requestRssAndDecode', url, proxy);
         let response = await window.utils.request(url, {
-            // agent: new httpsProxyAgent(proxy),
+            agent: agent,
         });
+        if (response.status !== 200) throw new Error('请求失败，无法访问：' + response.status);
         // 拿到原始数据流
         let chunk = await response.buffer();
         let encoding = 'utf8';

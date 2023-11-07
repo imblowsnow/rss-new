@@ -133,10 +133,14 @@ export default {
 
     this.loadData()
 
-    bus.$on(bus.EVENT_NEW_ARTICLE, () => {
-      // 通知更新数据
-      // this.loadData()
-      console.log('bus EVENT_NEW_ARTICLE');
+    bus.$on(bus.EVENT_NEW_ARTICLE, (articles) => {
+      console.log('bus on', bus.EVENT_NEW_ARTICLE, articles);
+      let autoRefresh = Rss.getConfig('autoRefresh', false)
+      console.log('autoRefresh', autoRefresh);
+      if (autoRefresh && this.current === 1 && articles.length > 0) {
+        // 通知更新数据
+        this.loadData()
+      }
     })
   },
   methods: {
@@ -219,7 +223,12 @@ export default {
       this.$router.push({name: 'rss-reader'})
     },
 
-    deleteArticles(){
+    async deleteArticles() {
+      try {
+        await this.$confirm("确定删除所有文章吗？");
+      } catch (err) {
+        return;
+      }
       Rss.deleteArticles()
       this.reload()
     }

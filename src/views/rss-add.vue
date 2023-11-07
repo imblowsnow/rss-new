@@ -6,7 +6,7 @@
           找到最佳信息源
         </div>
         <div class="sub-title">
-          您可以在这里查找网站摘要、B站用户、微博用户、知乎用户
+          您可以在这里查找网站摘要、B站用户、微博用户
         </div>
       </div>
       <el-menu
@@ -47,7 +47,7 @@
             </svg>
           </el-icon>
         </el-menu-item>
-        <el-menu-item index="zhihu">知乎</el-menu-item>
+        <!--        <el-menu-item index="zhihu">知乎</el-menu-item>-->
       </el-menu>
     </el-card>
     <el-card style="margin-top: 10px;" :body-style="{'padding': 0}" shadow="never">
@@ -60,7 +60,7 @@
             发现更多订阅源 rsshub rss-source
           </div>
           <el-input
-              v-model="searchWorld"
+              v-model="searchWord"
               class="w-50 m-2"
               size="large"
               placeholder="请输入RSS订阅地址"
@@ -74,7 +74,7 @@
             提示：点击用户头像会访问http://space.bilibili.com/xxx?xvsfds 其中的xxx就是用户id
           </div>
           <el-input
-              v-model="searchWorld"
+              v-model="searchWord"
               class="w-50 m-2"
               size="large"
               placeholder="订阅您最喜爱的用户，请输入用户id"
@@ -85,29 +85,29 @@
             订阅微博
           </div>
           <div class="sub-title">
-            提示：@加用户id是关注用户#加关键词id是关注关键词
+            提示：@加用户id是关注用户#加关键词 PS: @7735105675 #让中国市场成为世界的市场共享的市场大家的市场#
           </div>
           <el-input
-              v-model="searchWorld"
+              v-model="searchWord"
               class="w-50 m-2"
               size="large"
               placeholder="订阅您最喜爱的@用户或#关键词"
           ></el-input>
         </template>
-        <template v-else-if="activeName === 'zhihu'" class="header">
-          <div class="title">
-            订阅知乎
-          </div>
-          <div class="sub-title">
-            提示：@加用户id是关注用户#加话题id是关注话题
-          </div>
-          <el-input
-              v-model="searchWorld"
-              class="w-50 m-2"
-              size="large"
-              placeholder="订阅您最喜爱的@用户或#话题"
-          ></el-input>
-        </template>
+        <!--        <template v-else-if="activeName === 'zhihu'" class="header">-->
+        <!--          <div class="title">-->
+        <!--            订阅知乎-->
+        <!--          </div>-->
+        <!--          <div class="sub-title">-->
+        <!--            提示：@加用户id是关注用户#加话题id是关注话题-->
+        <!--          </div>-->
+        <!--          <el-input-->
+        <!--              v-model="searchWord"-->
+        <!--              class="w-50 m-2"-->
+        <!--              size="large"-->
+        <!--              placeholder="订阅您最喜爱的@用户或#话题"-->
+        <!--          ></el-input>-->
+        <!--        </template>-->
         <el-button style="width: 100%;margin: 20px 0;" type="primary" @click="search">检索
         </el-button>
       </div>
@@ -181,7 +181,7 @@ export default {
   data() {
     return {
       activeName: 'rss',
-      searchWorld: null,
+      searchWord: null,
       searchSites: []
     };
   },
@@ -207,13 +207,27 @@ export default {
     //   })
     // },
     async search(){
-      if (!this.searchWorld){
+      if (!this.searchWord) {
         this.$message.error("请输入搜索内容");
         return;
       }
-      let url = this.searchWorld;
+      let url = this.searchWord;
       if (this.activeName === 'bilibli'){
-        url = `https://rsshub.app/bilibili/user/dynamic/` + this.searchWorld;
+        url = `https://rsshub.app/bilibili/user/dynamic/` + this.searchWord;
+      } else if (this.activeName === 'weibo') {
+        let word = this.searchWord.trim();
+        // 判断 this.searchWorld 是否是纯数字
+        if (word.match(/^[0-9]*$/) || word.startsWith('@')) {
+          if (word.startsWith('@')) {
+            url = `https://rsshub.app/weibo/user/` + word.substring(1);
+          } else {
+            url = `https://rsshub.app/weibo/user/` + word;
+          }
+        } else {
+          if (word.startsWith('#')) word = word.substring(1);
+          if (word.startsWith('#')) word = word.substring(0, word.length - 1);
+          url = `https://rsshub.app/weibo/keyword/` + word;
+        }
       }
 
       this.subscribe(url);

@@ -54,14 +54,18 @@
             <el-form-item label="订阅通知">
               <el-checkbox v-model="form.notify" label="开启订阅通知"/>
             </el-form-item>
+            <el-form-item label="自动刷新">
+              <el-checkbox v-model="form.autoRefresh" label="开启自动刷新"/>
+            </el-form-item>
           </template>
           <template v-else-if="activeName === 'rss'">
-            <el-form-item label="rsshub地址">
+            <el-form-item
+                label="rsshub地址: 国内地址：https://rss.feiyuyu.net  https://rsshub.rssforever.com">
               <el-input v-model="form.rsshub" ></el-input>
             </el-form-item>
           </template>
           <template v-else-if="activeName === 'network'">
-            <el-form-item label="HTTP代理地址(127.0.0.1:8888)，为空不代理">
+            <el-form-item label="HTTP代理地址(http://127.0.0.1:8888)，为空不代理">
               <el-input v-model="form.proxy" ></el-input>
             </el-form-item>
           </template>
@@ -87,8 +91,9 @@ export default {
         timer: 5,
         maxArticleNum: 5000,
         notify: false,
-        rsshub: 'https://rsshub.app',
-        proxy: null
+        rsshub: 'https://rsshub.rssforever.com',
+        proxy: null,
+        autoRefresh: false
       }
     };
   },
@@ -99,6 +104,7 @@ export default {
   methods: {
     async loadConfig() {
       let configStr = await db.getItem(db.KEY_CONFIG);
+      console.log('configStr', configStr);
       if (configStr) {
         let data = JSON.parse(configStr);
         this.form = Object.assign(this.form, data);

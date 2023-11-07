@@ -24,9 +24,11 @@
               <el-input v-model="currentData.name"></el-input>
             </el-form-item>
             <el-form-item label="站点图标">
-              <el-image
-                  style="width: 100px; height: 100px"
-                  :src="currentData.icon"></el-image>
+              <site-icon style="width: 100px; height: 100px"
+                         :from-id="currentData.id"></site-icon>
+              <!--              <el-image-->
+              <!--                  style="width: 100px; height: 100px"-->
+              <!--                  :src="currentData.icon"></el-image>-->
             </el-form-item>
             <el-form-item label="站点名称">
               <el-input v-model="currentData.title" disabled></el-input>
@@ -47,8 +49,10 @@
 <script>
 import {defineComponent} from "vue";
 import Rss from "@/utils/rss";
+import SiteIcon from "@/components/site-icon.vue";
 export default {
   name: 'rss-sub-manage',
+  components: {SiteIcon},
   data() {
     return {
       data: [],

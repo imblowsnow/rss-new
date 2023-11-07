@@ -1,6 +1,7 @@
 import RssParseUtil from "@/utils/RssParseUtil";
 import db from "@/utils/db";
 import bus from "@/utils/bus";
+import Bus from "@/utils/bus";
 function generateUniqueId() {
     const timestamp = Date.now().toString(36); // 使用时间戳的36进制表示
     const randomPart = Math.random().toString(36).substr(2, 5); // 使用随机数的36进制表示
@@ -11,8 +12,9 @@ function generateUniqueId() {
 class Rss{
     timerInterval = null;
 
-    static async getConfig(name,defaultValue=null){
+    static getConfig(name, defaultValue = null) {
         let configStr = db.getItem(db.KEY_CONFIG);
+        console.log('configStr', configStr);
         let value = defaultValue;
         if (configStr){
             let data = JSON.parse(configStr);
@@ -21,24 +23,26 @@ class Rss{
         return value;
     }
     static async cronInterval(){
-        let timer = await this.getConfig('timer', 5 * 60);
-        // let isInit = db.getItem(db.KEY_INIT);
-        // if (this.getSubscribes().length === 0 && !isInit){
-        //     db.setItem(db.KEY_INIT,1);
-        //     // 加入一个默认的订阅源
-        //     let url = 'https://rsshub.app/zyw/hot'
-        //     this.subscribe(url,'知乎热榜');
-        // }
+        let timer = this.getConfig('timer', 5);
+        console.log('cronInterval', timer);
+
+        let isInit = db.getItem(db.KEY_INIT);
+        if (this.getSubscribes().length === 0 && !isInit) {
+            db.setItem(db.KEY_INIT, 1);
+            // 加入一个默认的订阅源
+            let url = 'https://www.zhihu.com/rss'
+            await this.subscribe(url, '知乎每日精选');
+        }
+
         if (this.timerInterval) clearInterval(this.timerInterval);
+
         // 订阅检查
-        this.timerInterval = setInterval(() => {
-            let articles = Rss.cron();
+        this.timerInterval = setInterval(async () => {
+            let articles = await Rss.cron();
+
             if (articles.length > 0) {
-                this.$notify({
-                    title: '新文章',
-                    message: '已更新' + articles.length + '篇文章',
-                    type: 'success',
-                });
+                console.log('emit new article', articles);
+                bus.$emit(bus.EVENT_NEW_ARTICLE, articles);
             }
         }, timer * 1000);
     }
@@ -72,24 +76,23 @@ class Rss{
         console.log('cron all subscribes allArticles',allArticles);
 
         // 去重本地已经存在的数据
-        let articleIndexs = this.getArticleIndexs()
+        // let articleIndexs = this.getArticleIndexs()
+        //
+        // let articleIndexsMap = {};
+        // for (const articleIndex of articleIndexs) {
+        //     if (!articleIndex.url) continue;
+        //     articleIndexsMap[articleIndex.url] = articleIndex;
+        // }
 
-        let articleIndexsMap = {};
-        for (const articleIndex of articleIndexs) {
-            if (!articleIndex.url) continue;
-            articleIndexsMap[articleIndex.url] = articleIndex;
-        }
-
-        console.log('articleIndexsMap', articleIndexsMap);
+        // console.log('articleIndexsMap', articleIndexsMap);
         allArticles = allArticles.filter((article)=>{
-            return !articleIndexsMap[article.link];
+            return !this.checkArticleExit(article.link);
         })
 
         if (allArticles.length > 0){
 
             await this.addArticles(allArticles);
 
-            bus.$emit(bus.EVENT_NEW_ARTICLE, allArticles);
         }
 
         console.log('cron end' , allArticles);
@@ -108,6 +111,10 @@ class Rss{
         }
     }
 
+    static checkArticleExit(url) {
+        return !!db.getItem(db.KEY_ARTICLE_PREFIX + url);
+    }
+
     static getArticleIndexs(){
         let articleIndexs = db.getItem(db.KEY_ARTICLE_INDEXES);
         if (articleIndexs){
@@ -123,11 +130,11 @@ class Rss{
     static async addArticles(articles){
         // 把文章存到数据库
         let articleIndexs = this.getArticleIndexs();
-        let articleIndexsMap = {};
-        for (const articleIndex of articleIndexs) {
-            if (!articleIndex.url) continue;
-            articleIndexsMap[articleIndex.url] = articleIndex;
-        }
+        // let articleIndexsMap = {};
+        // for (const articleIndex of articleIndexs) {
+        //     if (!articleIndex.url) continue;
+        //     articleIndexsMap[articleIndex.url] = articleIndex;
+        // }
 
         // 根据时间 published 最新时间在前面
         articles = articles.sort((a,b)=>{
@@ -135,7 +142,7 @@ class Rss{
         });
 
         // 检查最大存储数量 5000，超过自动删除最后的数据
-        let maxArticleNum = await this.getConfig('maxArticleNum',5000);
+        let maxArticleNum = this.getConfig('maxArticleNum', 5000);
         if (articleIndexs.length + articles.length > maxArticleNum){
             let deleteCount = articleIndexs.length + articles.length - maxArticleNum;
             articleIndexs.splice(maxArticleNum,deleteCount);
@@ -143,7 +150,7 @@ class Rss{
 
         let newArticles = [];
         for (const article of articles) {
-            if (articleIndexsMap[article.link]) continue;
+            if (this.checkArticleExit(article.link)) continue;
 
             newArticles.push({
                 url: article.link,
@@ -245,7 +252,11 @@ class Rss{
 
     static async subscribe(url, name=''){
         console.log('subscribe',url);
-        let res =  await RssParseUtil.parse(url);
+        // 替换rsshub加速地址
+        let rsshubDomain = Rss.getConfig('rsshub', 'https://rsshub.rssforever.com')
+        let parseUrl = url.replace('https://rsshub.app', rsshubDomain);
+
+        let res = await RssParseUtil.parse(parseUrl);
         let site = {
             // 随机生成一个id
             id: generateUniqueId(),

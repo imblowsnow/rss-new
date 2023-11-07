@@ -191,8 +191,11 @@ export default {
       padding 0 20px;
       height: calc(100vh - 100px);
       overflow: auto;
-      .content img{
-        max-width: 100%;
+
+      .content {
+        img, iframe {
+          max-width: 100%;
+        }
       }
     }
   }

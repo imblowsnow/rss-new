@@ -22,8 +22,10 @@ export async function parseByContent(data) {
 
     let result = xml.parse(data);
 
+
     let channel = result.rss && result.rss.channel ? result.rss.channel : result.feed;
     if (Array.isArray(channel)) channel = channel[0];
+
 
     const rss = {
         title: channel.title ?? '',
@@ -34,7 +36,6 @@ export async function parseByContent(data) {
         items: [],
     };
 
-    console.log('XMLParser', rss);
 
     let items = channel.item || channel.entry || [];
     if (items && !Array.isArray(items)) items = [items];
@@ -43,12 +44,17 @@ export async function parseByContent(data) {
         const val = items[i];
         const media = {};
 
+        let author = '';
+        if (val.author && val.author.name) author = val.author.name;
+        if (val['dc:creator']) author = val['dc:creator'];
+        if (author['$text']) author = author['$text'];
+
         const obj = {
             id: val.guid && val.guid.$text ? val.guid.$text : val.id,
             title: val.title && val.title.$text ? val.title.$text : val.title,
             description: val.summary && val.summary.$text ? val.summary.$text : val.description,
             link: val.link && val.link.href ? val.link.href : val.link,
-            author: val.author && val.author.name ? val.author.name : val['dc:creator'],
+            author: author,
             published: val.created ? Date.parse(val.created) : val.pubDate ? Date.parse(val.pubDate) : Date.now(),
             created: val.updated ? Date.parse(val.updated) : val.pubDate ? Date.parse(val.pubDate) : val.created ? Date.parse(val.created) : Date.now(),
             category: val.category || [],
