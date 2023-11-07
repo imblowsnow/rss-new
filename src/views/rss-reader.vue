@@ -25,8 +25,7 @@
         </div>
         <div class="article-info flex flex-justify-content-between flex-align-items-center" >
           <div class="author flex" style="grid-gap: 1em;">
-            <img class="icon" :src="getFromLogo(readData.fromId)" style="width: 40px;height: 40px;"
-                 :title="readData.from">
+            <site-icon :from-id="readData.fromId" style="width: 40px;height: 40px;"></site-icon>
             <div>
               <div class="channel-info flex" style="font-size: 14px;">
                 <span style="font-weight: 700;">{{ readData.from }}</span>
@@ -65,9 +64,11 @@
 import {defineComponent} from "vue";
 import DateUtil from "@/utils/DateUtil";
 import Rss from "@/utils/Rss";
+import SiteIcon from "@/components/site-icon.vue";
 
 export default {
   name: 'rss-reader',
+  components: {SiteIcon},
   data() {
     return {
       tableData: [],

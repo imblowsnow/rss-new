@@ -18,7 +18,7 @@
             </div>
             <div class="info">
               <div class="info-left">
-                <img class="icon" :src="getFromLogo(item.fromId)" :title="item.from">
+                <site-icon :from-id="item.fromId" class="icon"></site-icon>
                 <el-link :underline="false" class="from">{{ item.from }}</el-link>
               </div>
               <div class="info-right" :title="formatDate(item.published)">
@@ -53,9 +53,11 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import RssViewExtend from "./rss-view-extend.vue";
+import SiteIcon from "@/components/site-icon.vue";
 
 export default {
   name: 'rss-view-card',
+  components: {SiteIcon},
   extends: RssViewExtend,
   data() {
     return {};
